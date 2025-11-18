@@ -17,28 +17,26 @@ if ! command -v conda &> /dev/null; then
     exit 1
 fi
 
-# 环境名称和路径
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ENV_DIR="${PROJECT_DIR}/env"
+# 环境名称
 ENV_NAME="genome_assembly"
 
 # 检查环境是否已存在
-if [[ -d "${ENV_DIR}" ]]; then
-    echo "Environment already exists at: ${ENV_DIR}"
+if conda info --envs | grep -q "${ENV_NAME}"; then
+    echo "Environment '${ENV_NAME}' already exists."
     read -p "Do you want to remove and recreate it? (y/n): " choice
     if [[ "$choice" == "y" ]]; then
         echo "Removing existing environment..."
-        rm -rf "${ENV_DIR}"
+        conda env remove -n "${ENV_NAME}" -y
     else
         echo "Exiting..."
         exit 0
     fi
 fi
 
-echo "Creating conda environment at: ${ENV_DIR}..."
+echo "Creating conda environment '${ENV_NAME}'..."
 
-# 创建环境并安装软件（使用-p指定路径）
-conda create -p "${ENV_DIR}" -y -c conda-forge -c bioconda \
+# 创建环境并安装软件（使用-n指定环境名称）
+conda create -n "${ENV_NAME}" -y -c conda-forge -c bioconda \
     python=3.9 \
     fastp \
     jellyfish \
@@ -58,19 +56,19 @@ conda create -p "${ENV_DIR}" -y -c conda-forge -c bioconda \
 echo ""
 echo "Installing additional Python packages..."
 # 使用conda run在指定环境中运行pip
-conda run -p "${ENV_DIR}" pip install biopython pandas matplotlib seaborn pyyaml
+conda run -n "${ENV_NAME}" pip install biopython pandas matplotlib seaborn pyyaml
 
 echo ""
 echo "=========================================="
 echo "Environment setup completed!"
 echo "=========================================="
 echo ""
-echo "Environment location: ${ENV_DIR}"
+echo "Environment name: ${ENV_NAME}"
 echo ""
 echo "To activate the environment, run:"
-echo "  conda activate ${ENV_DIR}"
+echo "  conda activate ${ENV_NAME}"
 echo "  # or"
-echo "  source activate ${ENV_DIR}"
+echo "  source activate ${ENV_NAME}"
 echo ""
 echo "To deactivate, run:"
 echo "  conda deactivate"
