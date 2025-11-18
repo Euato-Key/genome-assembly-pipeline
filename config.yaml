@@ -1,0 +1,98 @@
+# Genome Assembly Pipeline Configuration
+# 基因组组装流程配置文件
+
+# ========== 项目基本信息 ==========
+project:
+  name: "TestGenome"            # 项目名称
+  species: "test_species"       # 物种名称
+  description: "Test genome assembly project"
+
+# ========== 计算资源配置 ==========
+resources:
+  threads: 4                    # CPU线程数（测试用）
+  memory_gb: 8                  # 内存大小(GB)（测试用）
+  
+# ========== 输入数据路径 ==========
+input:
+  # HiFi测序数据 (PacBio)
+  hifi_data: "sequence_files/HiFi_minimal.fasta"     # 必需：HiFi数据文件
+  
+  # Hi-C测序数据目录
+  hic_data: "sequence_files"                 # 必需：Hi-C原始数据目录
+  
+  # WGS数据目录 (可选，用于基因组调查)
+  wgs_data: "sequence_files"                 # 可选：全基因组测序数据
+  
+  # RNA-Seq数据目录 (可选)
+  rnaseq_data: ""                            # 可选：RNA测序数据
+
+# ========== 参考数据库配置 ==========
+databases:
+  # Kraken2数据库路径 (用于污染检测)
+  kraken_db: "/path/to/kraken_db"
+  
+  # 哺乳动物taxid文件 (可选，用于过滤)
+  mammal_taxids: "/path/to/mammalia_taxids.txt"
+  
+  # BUSCO数据库 (用于完整性评估)
+  busco_db: "/path/to/laurasiatheria_odb10"
+  busco_lineage: "laurasiatheria_odb10"
+
+# ========== 软件环境配置 ==========
+software:
+  # 使用Conda环境 (推荐)
+  use_conda: true
+  conda_env: "genome_assembly"
+  
+  # 或使用Docker (二选一)
+  use_docker: false
+  docker_image: "assembly:latest"
+
+# ========== 流程步骤控制 ==========
+steps:
+  # 数据质控与预处理
+  run_qc: false                      # 跳过质控（测试数据）
+  run_fastp: false                   # 跳过Hi-C/WGS数据质控
+  
+  # 基因组调查
+  run_genome_survey: false           # 跳过基因组大小估算
+  
+  # 污染检测与去除
+  run_kraken: false                  # 跳过Kraken2污染检测（无数据库）
+  kraken_confidence: 0.5             # 置信度阈值
+  kraken_min_hits: 300               # 最小hit数
+  
+  # 基因组组装
+  run_hifiasm: true                  # Hifiasm组装
+  hifiasm_options: "--primary -l 1"  # Hifiasm参数
+  
+  # 质量评估
+  run_busco: false                   # 跳过BUSCO（无数据库）
+  run_quast: true                    # QUAST连续性评估
+  
+  # Hi-C挂载
+  run_chromap: false                 # 跳过Hi-C比对（测试）
+  run_yahs: false                    # 跳过染色体挂载
+  
+  # Juicer可视化
+  run_juicer: false                  # 跳过生成Juicer文件
+  juicer_tools_jar: "/path/to/juicer_tools.jar"
+
+# ========== 质控参数 ==========
+qc_params:
+  fastp:
+    min_length: 50                   # 最短读长（测试用）
+    threads: 4                       # fastp线程数（测试用）
+    
+  jellyfish:
+    kmer_size: 19                    # k-mer大小
+    hash_size: "1000000000"          # hash表大小
+    
+  genomescope:
+    ploidy: 2                        # 倍性
+
+# ========== 输出目录配置 ==========
+output:
+  work_dir: "."                      # 工作目录
+  keep_intermediate: true            # 保留中间文件
+  log_dir: "logs"                    # 日志目录

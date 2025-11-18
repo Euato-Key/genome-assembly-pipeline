@@ -1,0 +1,93 @@
+# Genome Assembly Pipeline - Example Configuration
+# 示例配置文件 - 复制此文件为 config.yaml 并修改相应路径
+
+# ========== 项目基本信息 ==========
+project:
+  name: "MyGenome"
+  species: "Homo sapiens"
+  description: "Example genome assembly project"
+
+# ========== 计算资源配置 ==========
+resources:
+  threads: 64
+  memory_gb: 512
+
+# ========== 输入数据路径 ==========
+input:
+  # 必需：HiFi数据文件 (FASTA或FASTQ格式)
+  hifi_data: "/data/raw/hifi.fasta"
+  
+  # 必需：Hi-C原始数据目录 (包含R1/R2配对的fastq.gz文件)
+  hic_data: "/data/raw/hic"
+  
+  # 可选：WGS数据目录 (用于基因组调查)
+  wgs_data: "/data/raw/wgs"
+  
+  # 可选：RNA-Seq数据目录
+  rnaseq_data: ""
+
+# ========== 参考数据库配置 ==========
+databases:
+  # Kraken2数据库路径
+  kraken_db: "/databases/kraken2/standard"
+  
+  # 哺乳动物taxid文件 (可选)
+  mammal_taxids: ""
+  
+  # BUSCO数据库
+  busco_db: "/databases/busco/laurasiatheria_odb10"
+  busco_lineage: "laurasiatheria_odb10"
+
+# ========== 软件环境配置 ==========
+software:
+  use_conda: true
+  conda_env: "genome_assembly"
+  use_docker: false
+  docker_image: ""
+
+# ========== 流程步骤控制 ==========
+steps:
+  # 数据质控
+  run_qc: true
+  run_fastp: true
+  
+  # 基因组调查
+  run_genome_survey: true
+  
+  # 污染检测
+  run_kraken: true
+  kraken_confidence: 0.5
+  kraken_min_hits: 300
+  
+  # 基因组组装
+  run_hifiasm: true
+  hifiasm_options: "--primary -l 1"
+  
+  # 质量评估
+  run_busco: true
+  run_quast: true
+  
+  # Hi-C挂载
+  run_chromap: true
+  run_yahs: true
+  
+  # Juicer可视化
+  run_juicer: true
+  juicer_tools_jar: "/tools/juicer_tools.3.0.0.jar"
+
+# ========== 质控参数 ==========
+qc_params:
+  fastp:
+    min_length: 145
+    threads: 16
+  jellyfish:
+    kmer_size: 19
+    hash_size: "1000000000"
+  genomescope:
+    ploidy: 2
+
+# ========== 输出配置 ==========
+output:
+  work_dir: "."
+  keep_intermediate: true
+  log_dir: "logs"
