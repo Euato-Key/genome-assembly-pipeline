@@ -4,7 +4,7 @@
 # 流程验证脚本 - 检查环境和配置
 ##############################################################################
 
-set -e
+set -euo pipefail
 
 # 颜色定义
 RED='\033[0;31m'
@@ -24,6 +24,22 @@ check_command() {
         return 0
     else
         echo -e "${RED}[✗]${NC} $cmd not found"
+        
+        # 添加特定工具的修复建议
+        case "$cmd" in
+            jellyfish)
+                echo -e "  ${YELLOW}Suggestion:${NC} Run 'conda install -n genome_assembly -y -c bioconda jellyfish'"
+                ;;
+            fastp)
+                echo -e "  ${YELLOW}Suggestion:${NC} Run 'conda install -n genome_assembly -y -c bioconda fastp'"
+                ;;
+            hifiasm)
+                echo -e "  ${YELLOW}Suggestion:${NC} Run 'conda install -n genome_assembly -y -c bioconda hifiasm'"
+                ;;
+            samtools)
+                echo -e "  ${YELLOW}Suggestion:${NC} Run 'conda install -n genome_assembly -y -c bioconda samtools'"
+                ;;
+        esac
         return 1
     fi
 }
@@ -117,7 +133,7 @@ if [[ $AVAIL_SPACE_GB -lt 1000 ]]; then
     echo -e "${YELLOW}[!]${NC} Warning: Genome assembly typically requires 10TB+ storage"
 fi
 
-echo ""
+echo ""  
 echo "=========================================="
 if [[ $MISSING_CMDS -eq 0 ]]; then
     echo -e "${GREEN}Validation passed!${NC}"
@@ -125,7 +141,29 @@ if [[ $MISSING_CMDS -eq 0 ]]; then
 else
     echo -e "${RED}Validation failed!${NC}"
     echo "Missing $MISSING_CMDS required command(s)."
+    echo ""
+    echo -e "${YELLOW}Fixing instructions:${NC}"
+    echo "1. Make sure you have activated the environment: 'conda activate genome_assembly'"
+    echo "2. Run the following command to reinstall missing tools:"
+    echo "   conda install -n genome_assembly -y -c bioconda jellyfish fastp hifiasm samtools"
+    echo "3. If still failing, try recreating the environment:"
+    echo "   bash setup_environment.sh"
+    echo ""
     echo "Please install missing software before running the pipeline."
     exit 1
 fi
 echo "=========================================="
+
+echo ""
+echo "Additional diagnostics:"
+echo "----------------------"
+# 检查conda环境路径是否正确
+echo -e "${YELLOW}Current conda environment:${NC} $(conda info --envs | grep '*' | awk '{print $1}')"
+
+# 检查PATH环境变量是否包含conda环境
+if [[ "$PATH" == *"envs/genome_assembly"* ]]; then
+    echo -e "${GREEN}[✓]${NC} Conda environment path found in PATH"
+else
+    echo -e "${YELLOW}[!]${NC} Warning: Conda environment path not in PATH"
+    echo -e "  ${YELLOW}Suggestion:${NC} Make sure to activate the environment properly"
+fi

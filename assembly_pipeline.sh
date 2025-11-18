@@ -18,7 +18,7 @@ set -o nounset
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly WORK_DIR="${PWD}"
 readonly CONFIG_FILE="${CONFIG_FILE:-${WORK_DIR}/config.yaml}"
-readonly ENV_DIR="${SCRIPT_DIR}/env"  # 项目目录下的环境
+readonly ENV_NAME="genome_assembly"  # 使用已有的虚拟环境名称
 
 # 加载工具函数
 source "${SCRIPT_DIR}/scripts/utils.sh"
@@ -52,30 +52,17 @@ init_pipeline() {
 
 # ========== 提前激活环境 ==========
 activate_env_early() {
-    if [[ -d "${ENV_DIR}" ]]; then
-        # 初始化conda
-        if [[ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]]; then
-            source "$HOME/miniconda3/etc/profile.d/conda.sh"
-        elif [[ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]]; then
-            source "$HOME/anaconda3/etc/profile.d/conda.sh"
-        fi
-        
-        # 先停用当前环境（如果有）
-        if [[ -n "${CONDA_DEFAULT_ENV:-}" ]] && [[ "${CONDA_DEFAULT_ENV}" != "$(basename ${ENV_DIR})" ]]; then
-            conda deactivate 2>/dev/null || true
-        fi
-        
-        # 激活项目环境
-        if [[ "${CONDA_DEFAULT_ENV:-}" != "$(basename ${ENV_DIR})" ]]; then
-            conda activate "${ENV_DIR}" 2>/dev/null || {
-                echo "ERROR: Failed to activate environment at ${ENV_DIR}"
-                echo "Please run: bash setup_environment.sh"
-                exit 1
-            }
-        fi
-    else
-        echo "ERROR: Project environment not found at: ${ENV_DIR}"
-        echo "Please run: bash setup_environment.sh"
+    # 初始化conda
+    if [[ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]]; then
+        source "$HOME/miniconda3/etc/profile.d/conda.sh"
+    elif [[ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]]; then
+        source "$HOME/anaconda3/etc/profile.d/conda.sh"
+    fi
+    
+    # 检查是否已经激活了正确的环境
+    if [[ "${CONDA_DEFAULT_ENV:-}" != "${ENV_NAME}" ]]; then
+        echo "ERROR: Please activate the genome_assembly environment first!"
+        echo "Run the following command: conda activate genome_assembly"
         exit 1
     fi
 }

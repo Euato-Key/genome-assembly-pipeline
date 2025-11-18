@@ -4,7 +4,8 @@
 # 基因组组装流程环境安装脚本
 ##############################################################################
 
-set -e
+# 更严格的错误处理
+set -euo pipefail
 
 echo "=========================================="
 echo "Genome Assembly Pipeline - Environment Setup"
@@ -36,6 +37,7 @@ fi
 echo "Creating conda environment '${ENV_NAME}'..."
 
 # 创建环境并安装软件（使用-n指定环境名称）
+echo "Installing core dependencies..."
 conda create -n "${ENV_NAME}" -y -c conda-forge -c bioconda \
     python=3.9 \
     fastp \
@@ -51,17 +53,56 @@ conda create -n "${ENV_NAME}" -y -c conda-forge -c bioconda \
     bcftools \
     parallel \
     pigz \
-    yq
+    yq || {
+        echo "Error: Failed to install core dependencies"
+        exit 1
+    }
 
 echo ""
 echo "Installing additional Python packages..."
 # 使用conda run在指定环境中运行pip
-conda run -n "${ENV_NAME}" pip install biopython pandas matplotlib seaborn pyyaml
+conda run -n "${ENV_NAME}" pip install biopython pandas matplotlib seaborn pyyaml || {
+    echo "Warning: Failed to install some Python packages"
+}
+
+# 验证核心工具安装
+echo ""
+echo "Validating essential tools installation..."
+source activate "${ENV_NAME}" || {
+    echo "Error: Failed to activate environment"
+    exit 1
+}
+
+# 检查关键工具是否安装成功
+echo "Checking for essential tools..."
+for tool in jellyfish fastp hifiasm samtools; do
+    if command -v "$tool" &> /dev/null; then
+        echo "✓ $tool found: $(command -v $tool)"
+    else
+        echo "✗ $tool not found! Reinstalling..."
+        conda install -n "${ENV_NAME}" -y -c bioconda "$tool" || {
+            echo "Error: Failed to reinstall $tool"
+            exit 1
+        }
+    fi
+done
+
+# 确保退出环境，避免影响用户当前会话
+conda deactivate
 
 echo ""
 echo "=========================================="
 echo "Environment setup completed!"
 echo "=========================================="
+echo ""
+echo "Important notes:"
+echo "1. Always activate the environment before running the pipeline:"
+echo "   conda activate ${ENV_NAME}"
+echo "2. If tools are still not found after activation, try:"
+echo "   conda install -n ${ENV_NAME} -y -c bioconda jellyfish fastp hifiasm samtools"
+echo "3. For manual troubleshooting:"
+echo "   - Check if the conda environment path is in your PATH"
+echo "   - Try reinstalling with '--force-reinstall' option if needed"
 echo ""
 echo "Environment name: ${ENV_NAME}"
 echo ""

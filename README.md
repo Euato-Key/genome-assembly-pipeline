@@ -64,6 +64,8 @@ bash setup_environment.sh
 # 3. 激活环境
 conda activate genome_assembly
 
+# 重要说明：运行主流程前必须确保genome_assembly环境已激活
+
 # 4. 验证环境
 bash scripts/validate.sh
 ```
@@ -97,7 +99,13 @@ resources:
 
 ### 3. 运行流程
 
+**重要：运行流程前必须确保已激活正确的环境！**
+
 ```bash
+# 先确保环境已激活
+conda activate genome_assembly
+
+# 然后运行流程
 # 运行完整流程
 bash assembly_pipeline.sh run
 
