@@ -15,7 +15,7 @@ resources:
 # ========== 输入数据路径 ==========
 input:
   # HiFi测序数据 (PacBio)
-  hifi_data: "sequence_files/HiFi_minimal.fasta"     # 必需：HiFi数据文件
+  hifi_data: "sequence_files/HiFi.fasta"     # 必需：HiFi数据文件
   
   # Hi-C测序数据目录
   hic_data: "sequence_files"                 # 必需：Hi-C原始数据目录
@@ -24,7 +24,7 @@ input:
   wgs_data: "sequence_files"                 # 可选：全基因组测序数据
   
   # RNA-Seq数据目录 (可选)
-  rnaseq_data: ""                            # 可选：RNA测序数据
+  rnaseq_data: "sequence_files"              # 可选：RNA测序数据
 
 # ========== 参考数据库配置 ==========
 databases:

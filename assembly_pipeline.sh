@@ -310,8 +310,11 @@ run_hifiasm() {
         else
             hic_abs_path="${WORK_DIR}/${HIC_DATA}"
         fi
-        hic1_files=$(find "$hic_abs_path" -name "*R1*.fastq.gz" -o -name "*R1*.fastq" 2>/dev/null | tr '\n' ',' | sed 's/,$//')
-        hic2_files=$(find "$hic_abs_path" -name "*R2*.fastq.gz" -o -name "*R2*.fastq" 2>/dev/null | tr '\n' ',' | sed 's/,$//')
+        # 使用括号确保正确的逻辑优先级
+        hic1_files=$(find "$hic_abs_path" \( -name "*R1*.fastq.gz" -o -name "*R1*.fastq" \) 2>/dev/null | tr '\n' ',' | sed 's/,$//')
+        hic2_files=$(find "$hic_abs_path" \( -name "*R2*.fastq.gz" -o -name "*R2*.fastq" \) 2>/dev/null | tr '\n' ',' | sed 's/,$//')
+        log INFO "Found Hi-C R1 files: $hic1_files"
+        log INFO "Found Hi-C R2 files: $hic2_files"
     fi
     
     # 运行Hifiasm
@@ -320,7 +323,7 @@ run_hifiasm() {
         hifiasm -o "${PROJECT_NAME}" \
             -t 1 \
             --primary -l 0 \
-            -m 1000 \
+            -m 6000 \
             --h1 "$hic1_files" \
             --h2 "$hic2_files" \
             "$hifi_abs_path" \
@@ -330,7 +333,7 @@ run_hifiasm() {
         hifiasm -o "${PROJECT_NAME}" \
             -t 1 \
             --primary -l 0 \
-            -m 1000 \
+            -m 6000 \
             "$hifi_abs_path" \
             2>&1 | tee -a "${LOG_FILE:-/dev/null}"
     fi
