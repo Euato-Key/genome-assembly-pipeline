@@ -44,7 +44,7 @@ conda create -n "${ENV_NAME}" -y -c conda-forge -c bioconda \
     jellyfish \
     kraken2 \
     seqkit \
-    hifiasm \
+    hifiasm=0.19.7 \
     chromap \
     yahs \
     busco=5.4.7 \
