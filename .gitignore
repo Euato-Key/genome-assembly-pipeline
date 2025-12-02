@@ -207,8 +207,18 @@ marimo/_lsp/
 __marimo__/
 
 
-# 新增
+# 这个是AI IDE的指令
 要求.md
+
 # 这个是基因数据文件夹，里面放的是师兄给的数据
 sequence_files/
-*.Identifier  
+
+# 这个是WSL产生的标识文件
+*.Identifier
+
+#这个是日志文件
+logs/  
+
+# IDE 配置文件
+.vscode/
+.cargo
