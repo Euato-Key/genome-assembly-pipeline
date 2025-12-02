@@ -1,0 +1,9 @@
+# .vscode/preview.yml
+autoOpen: false # 打开工作空间时是否自动开启所有应用的预览
+apps:
+  - run: conda activate py38 && python hello_world.py # 应用的启动命令
+    root: ./examples # 应用的启动目录
+    name: miniconda # 应用名称
+    description: 启动python3.8环境。 # 应用描述
+    autoOpen: false # 打开工作空间时是否自动开启预览（优先级高于根级 autoOpen）
+    
