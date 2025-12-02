@@ -222,3 +222,4 @@ logs/
 # IDE 配置文件
 .vscode/
 .cargo
+result

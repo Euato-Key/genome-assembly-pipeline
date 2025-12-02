@@ -113,6 +113,7 @@ setup_env() {
         genomescope2 \
         kraken2 \
         hifiasm \
+        flye \
         busco \
         chromap \
         yahs \
@@ -132,6 +133,7 @@ setup_env() {
             genomescope2 \
             kraken2 \
             hifiasm \
+            flye \
             busco \
             chromap \
             yahs \
@@ -193,7 +195,7 @@ verify_install() {
         exit 1
     fi
 
-    local tools=(fastp jellyfish kraken2 hifiasm busco chromap yahs samtools java parallel)
+    local tools=(fastp jellyfish kraken2 hifiasm flye busco chromap yahs samtools java parallel)
     local fail=0
 
     for tool in "${tools[@]}"; do
